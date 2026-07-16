@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civil Service Institute - Portal</title>
+    <!-- Tailwind CSS for modern and beautiful UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .toast-animate {
+            animation: slideDown 0.3s ease-out, fadeOut 0.3s ease-in 0.7s forwards;
+        }
+        @keyframes slideDown {
+            from { transform: translate(-50%, -50px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between">
+
+    <!-- Toast Notification Container (Disappears after 1 second) -->
+    <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none"></div>
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-blue-900 text-white shadow-md">
+        <div class="max-width-7xl mx-auto px-4 py-3 flex justify-between items-center max-w-7xl">
+            <div class="flex items-center space-x-3">
+                <!-- High Quality University Vector Logo Placeholder -->
+                <div class="bg-white p-2 rounded-full shadow-inner flex items-center justify-center w-12 h-12">
+                    <i class="fa-solid fa-graduation-cap text-blue-900 text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide">CIVIL SERVICE INSTITUTE</h1>
+                    <p class="text-xs text-blue-200">University Management System</p>
+                </div>
+            </div>
+            <div id="user-status-bar" class="hidden flex items-center space-x-4">
+                <span id="logged-user-display" class="text-sm font-medium bg-blue-800 px-3 py-1.5 rounded-lg border border-blue-700"></span>
+                <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm transition font-semibold">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Bax
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
+
+        <!-- SECTION 1: LOGIN PAGE -->
+        <section id="login-section" class="max-w-md mx-auto my-12 bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Soo gal Nidaamka</h2>
+                <p class="text-gray-500 text-sm mt-1">Geli macluumaadkaaga si aad u gasho portal-ka</p>
+            </div>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email-ka</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <input type="email" id="login-email" required class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" placeholder="magac@csi.edu.so">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="login-password" required class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" placeholder="••••••••">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2.5 rounded-lg transition shadow-md">
+                    Gasho Portal-ka
+                </button>
+            </form>
+        </section>
+
+        <!-- SECTION 2: ADMIN DASHBOARD -->
+        <section id="admin-dashboard" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Dashboard-ka Admin-ka</h2>
+                    <p class="text-gray-500 text-sm">Maamul isticmaalayaasha, fasalada, iyo xidhiidhada xaadiriska.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="showAdminTab('users-tab')" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-blue-800">
+                        <i class="fa-solid fa-users mr-1"></i> Isticmaalayaasha
+                    </button>
+                    <button onclick="showAdminTab('attendance-tab')" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-emerald-700">
+                        <i class="fa-solid fa-link mr-1"></i> Samee Link-ga Xaadiriska
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab 1: User Management -->
+            <div id="users-tab" class="admin-tab bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fa-solid fa-user-plus mr-1 text-blue-900"></i> Diiwaangeli Isticmaale Cusub</h3>
+                <form onsubmit="createUser(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <input type="text" id="reg-name" placeholder="Magaca oo Buuxa" required class="p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="email" id="reg-email" placeholder="Gmail-ka / Email" required class="p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="password" id="reg-password" placeholder="Password-ka" required class="p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <select id="reg-role" required class="p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="">Dooro Role-ka</option>
+                        <option value="admin">Admin</option>
+                        <option value="teacher">Teacher (Macalin)</option>
+                        <option value="student">Student (Arday)</option>
+                    </select>
+                    <button type="submit" class="md:col-span-4 bg-blue-900 text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition">
+                        Diiwaangeli
+                    </button>
+                </form>
+
+                <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Isticmaalayaasha Jira</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="p-3 text-sm font-semibold text-gray-700">Magaca</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700">Email-ka</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700">Role-ka</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700">Tallaabo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body" class="divide-y divide-gray-100">
+                            <!-- Dynamic row insertion -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Attendance Link Generator -->
+            <div id="attendance-tab" class="admin-tab hidden bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fa-solid fa-link text-emerald-600 mr-1"></i> Abuur Link-ga Xaadiriska Fasalka</h3>
+                <form onsubmit="generateAttendanceLink(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <input type="text" id="class-name" placeholder="Tusaale: Computer Science - Level 3" required class="p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <select id="select-teacher" required class="p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="">U doorto Macalinka baraya</option>
+                        <!-- Dynamic Teachers Option -->
+                    </select>
+                    <button type="submit" class="bg-emerald-600 text-white font-bold py-2.5 rounded-lg hover:bg-emerald-700 transition">
+                        Abuur Link-ga
+                    </button>
+                </form>
+
+                <div id="generated-link-box" class="hidden p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex flex-col md:flex-row justify-between items-center gap-3">
+                    <div class="truncate w-full">
+                        <p class="text-xs text-emerald-800 font-bold">Link-gii Xaadiriska waa diyaar:</p>
+                        <span id="output-link" class="text-xs text-gray-600 select-all font-mono"></span>
+                    </div>
+                    <button onclick="copyGeneratedLink()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 shrink-0">
+                        <i class="fa-solid fa-copy mr-1"></i> Nuqul (Copy)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: TEACHER DASHBOARD -->
+        <section id="teacher-dashboard" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-800">Qaybta Macalinka</h2>
+                <p class="text-gray-500 text-sm">Halkan ka maamul xaadirinta ardayda iyo casharadaada.</p>
+            </div>
+
+            <!-- Attendance Class Session View (Triggered by Link) -->
+            <div id="teacher-attendance-panel" class="bg-white p-6 rounded-2xl shadow-sm border border-emerald-200">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 class="text-lg font-bold text-emerald-800"><i class="fa-solid fa-clipboard-user mr-1"></i> Xaadiriska Fasalka: <span id="current-attendance-class" class="text-gray-800"></span></h3>
+                    <span class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-bold">Maanta</span>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="p-3 text-sm font-semibold text-gray-700">Magaca Ardayga</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700">Email-ka</th>
+                                <th class="p-3 text-sm font-semibold text-gray-700">Xaadir / Ma-Joogo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-attendance-list" class="divide-y divide-gray-100">
+                            <!-- Students loaded automatically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button onclick="saveAttendance()" class="bg-emerald-600 text-white font-bold px-6 py-2.5 rounded-lg hover:bg-emerald-700 transition">
+                        <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Kaydi Xaadiriska
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: STUDENT DASHBOARD -->
+        <section id="student-dashboard" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-800">Qaybta Ardayga</h2>
+                <p class="text-gray-500 text-sm">Halkan ka eeg dhibcahaaga, xaadiriskaaga iyo casharadaada.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4">
+                    <div class="p-3 bg-blue-100 text-blue-900 rounded-full">
+                        <i class="fa-solid fa-calendar-check text-2xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-gray-500 text-xs font-bold uppercase">Boqolayda Xaadiriska</h4>
+                        <p class="text-2xl font-bold text-gray-800">94.5%</p>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4">
+                    <div class="p-3 bg-emerald-100 text-emerald-800 rounded-full">
+                        <i class="fa-solid fa-book text-2xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-gray-500 text-xs font-bold uppercase">Madooyinka kuu Diiwaan gashan</h4>
+                        <p class="text-2xl font-bold text-gray-800">6 Maaddo</p>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4">
+                    <div class="p-3 bg-indigo-100 text-indigo-800 rounded-full">
+                        <i class="fa-solid fa-star text-2xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-gray-500 text-xs font-bold uppercase">GPA-gaaga</h4>
+                        <p class="text-2xl font-bold text-gray-800">3.82</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-800 text-gray-400 py-4 text-center text-xs border-t border-gray-700">
+        <p>&copy; 2026 Civil Service Institute. Dhamaan xuquuqdu waa dhawran tahay. waxa dhisay systemka ENG:ABDISHAKOUR. OSMAN</p>
+    </footer>
+
+    <!-- SYSTEM CORE JAVASCRIPT -->
+    <script>
+        // Database simulation using localStorage
+        let db = {
+            users: JSON.parse(localStorage.getItem('csi_users')) || [],
+            attendanceSessions: JSON.parse(localStorage.getItem('csi_attendance_sessions')) || [],
+            savedAttendance: JSON.parse(localStorage.getItem('csi_saved_attendance')) || []
+        };
+
+        // Current Active User
+        let currentUser = null;
+
+        // Active Session URL parameters for Attendance Redirect
+        let activeAttendanceRedirectClass = null;
+
+        // Initialize System
+        window.onload = function() {
+            // Seed Admin if db is empty so system can be accessible
+            if (db.users.length === 0) {
+                db.users.push({
+                    id: 1,
+                    name: "Super Admin",
+                    email: "Shakour@csi.edu.so",
+                    password: "Abdicsi12",
+                    role: "admin"
+                });
+                saveToLocalStorage();
+            }
+
+            // Check if URL has a class parameter for attendance
+            const urlParams = new URLSearchParams(window.location.search);
+            const attendanceClass = urlParams.get('attendanceClass');
+            if (attendanceClass) {
+                activeAttendanceRedirectClass = decodeURIComponent(attendanceClass);
+                showToast("Fadlan marka hore login garee si aad xaadiriska u samayso", "warning");
+            }
+        };
+
+        // LocalStorage Sync
+        function saveToLocalStorage() {
+            localStorage.setItem('csi_users', JSON.stringify(db.users));
+            localStorage.setItem('csi_attendance_sessions', JSON.stringify(db.attendanceSessions));
+            localStorage.setItem('csi_saved_attendance', JSON.stringify(db.savedAttendance));
+        }
+
+        // Beautiful 1-Second Toast Message
+        function showToast(message, type = "success") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = "bg-emerald-600";
+            if (type === "error") bgClass = "bg-red-600";
+            if (type === "warning") bgClass = "bg-amber-500";
+
+            toast.className = `${bgClass} text-white text-sm font-semibold px-6 py-3 rounded-xl shadow-2xl flex items-center space-x-2 toast-animate`;
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            // Remove toast entirely from DOM after 1 second
+            setTimeout(() => {
+                toast.remove();
+            }, 1000);
+        }
+
+        // Login Handler
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+
+            if (user) {
+                currentUser = user;
+                showToast(`Kusoo dhawaada, ${user.name}!`);
+                
+                // Show user status bar
+                document.getElementById('user-status-bar').classList.remove('hidden');
+                document.getElementById('logged-user-display').innerHTML = `<i class="fa-solid fa-user-shield mr-1.5"></i> ${user.name} (${user.role.toUpperCase()})`;
+                
+                // Route user to appropriate panel
+                routeUser(user);
+            } else {
+                showToast("Email ama Password khaldan!", "error");
+            }
+        }
+
+        // User Routing
+        function routeUser(user) {
+            // Hide login
+            document.getElementById('login-section').classList.add('hidden');
+
+            // Reset dashboard views
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('teacher-dashboard').classList.add('hidden');
+            document.getElementById('student-dashboard').classList.add('hidden');
+
+            // Link redirection logic
+            if (activeAttendanceRedirectClass) {
+                if (user.role === 'teacher') {
+                    document.getElementById('teacher-dashboard').classList.remove('hidden');
+                    loadTeacherAttendanceSection(activeAttendanceRedirectClass);
+                    activeAttendanceRedirectClass = null; // reset
+                    return;
+                } else {
+                    showToast("Link-gan waxaa loo oggolyahay macalimiinta oo keliya!", "warning");
+                    activeAttendanceRedirectClass = null; // reset
+                }
+            }
+
+            // Normal Routing
+            if (user.role === 'admin') {
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                loadAdminUsersTable();
+                loadTeachersDropdown();
+            } else if (user.role === 'teacher') {
+                document.getElementById('teacher-dashboard').classList.remove('hidden');
+                // Hide class attendance panel by default until dynamic redirect/activation
+                document.getElementById('teacher-attendance-panel').classList.add('hidden');
+            } else if (user.role === 'student') {
+                document.getElementById('student-dashboard').classList.remove('hidden');
+            }
+        }
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            document.getElementById('user-status-bar').classList.add('hidden');
+            
+            // Show login screen again
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('teacher-dashboard').classList.add('hidden');
+            document.getElementById('student-dashboard').classList.add('hidden');
+
+            // Clear login inputs
+            document.getElementById('login-email').value = "";
+            document.getElementById('login-password').value = "";
+
+            showToast("Waad ka baxday nidaamka", "warning");
+        }
+
+        /* ADMIN FUNCTIONS */
+        function showAdminTab(tabId) {
+            document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        function loadAdminUsersTable() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+            db.users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 text-sm text-gray-800 font-medium">${user.name}</td>
+                    <td class="p-3 text-sm text-gray-600">${user.email}</td>
+                    <td class="p-3 text-sm"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                        user.role === 'admin' ? 'bg-red-100 text-red-800' : 
+                        user.role === 'teacher' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                    }">${user.role.toUpperCase()}</span></td>
+                    <td class="p-3 text-sm">
+                        <button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-800 text-xs font-bold transition">
+                            <i class="fa-solid fa-trash mr-1"></i> Delete
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function loadTeachersDropdown() {
+            const select = document.getElementById('select-teacher');
+            select.innerHTML = '<option value="">U doorto Macalinka baraya</option>';
+            const teachers = db.users.filter(u => u.role === 'teacher');
+            teachers.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.name;
+                opt.textContent = t.name;
+                select.appendChild(opt);
+            });
+        }
+
+        function createUser(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const role = document.getElementById('reg-role').value;
+
+            // Simple validation for duplicate email
+            if (db.users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+                showToast("Email-kani mar hore ayaa la isticmaalay!", "error");
+                return;
+            }
+
+            const newUser = {
+                id: Date.now(),
+                name,
+                email,
+                password,
+                role
+            };
+
+            db.users.push(newUser);
+            saveToLocalStorage();
+            showToast("Isticmaalaha waa la diwaangeliyey!");
+            
+            // Clear inputs
+            document.getElementById('reg-name').value = '';
+            document.getElementById('reg-email').value = '';
+            document.getElementById('reg-password').value = '';
+            document.getElementById('reg-role').value = '';
+
+            // Refresh table & selectors
+            loadAdminUsersTable();
+            loadTeachersDropdown();
+        }
+
+        function deleteUser(id) {
+            db.users = db.users.filter(u => u.id !== id);
+            saveToLocalStorage();
+            showToast("Isticmaalaha waa la tirtiray", "warning");
+            loadAdminUsersTable();
+            loadTeachersDropdown();
+        }
+
+        function generateAttendanceLink(e) {
+            e.preventDefault();
+            const className = document.getElementById('class-name').value.trim();
+            const teacher = document.getElementById('select-teacher').value;
+
+            // Generate structured query URL that will trigger redirect logic
+            const currentUrl = window.location.origin + window.location.pathname;
+            const encodedClass = encodeURIComponent(className);
+            const generatedLink = `${currentUrl}?attendanceClass=${encodedClass}`;
+
+            document.getElementById('output-link').textContent = generatedLink;
+            document.getElementById('generated-link-box').classList.remove('hidden');
+            
+            showToast("Link-ga waa la abuuray!");
+        }
+
+        function copyGeneratedLink() {
+            const textToCopy = document.getElementById('output-link').textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("Link-ga waxaa lagu soo koobay Clipboard!");
+            }).catch(() => {
+                showToast("Koobiyeyntu way fashilantay!", "error");
+            });
+        }
+
+        /* TEACHER FUNCTIONS */
+        function loadTeacherAttendanceSection(className) {
+            document.getElementById('teacher-attendance-panel').classList.remove('hidden');
+            document.getElementById('current-attendance-class').textContent = className;
+
+            const tbody = document.getElementById('student-attendance-list');
+            tbody.innerHTML = '';
+
+            // Load all registered students
+            const students = db.users.filter(u => u.role === 'student');
+
+            if(students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-500 text-sm">Ma jiraan arday nidaamka ku diiwaangashan oo la xaadiriyo.</td></tr>`;
+                return;
+            }
+
+            students.forEach(student => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 text-sm text-gray-800 font-medium">${student.name}</td>
+                    <td class="p-3 text-sm text-gray-600">${student.email}</td>
+                    <td class="p-3 text-sm">
+                        <select class="p-1.5 border border-gray-300 rounded-lg text-xs outline-none focus:ring-1 focus:ring-emerald-500 attendance-status" data-student-email="${student.email}">
+                            <option value="Present">Jooga (Present)</option>
+                            <option value="Absent">Ma-joogo (Absent)</option>
+                            <option value="Excused">Fasaxan (Excused)</option>
+                        </select>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function saveAttendance() {
+            const className = document.getElementById('current-attendance-class').textContent;
+            const selectElements = document.querySelectorAll('.attendance-status');
+            
+            let attendanceRecords = [];
+
+            selectElements.forEach(select => {
+                attendanceRecords.push({
+                    studentEmail: select.getAttribute('data-student-email'),
+                    status: select.value
+                });
+            });
+
+            const sessionRecord = {
+                id: Date.now(),
+                class: className,
+                date: new Date().toLocaleDateString(),
+                teacher: currentUser.name,
+                records: attendanceRecords
+            };
+
+            db.savedAttendance.push(sessionRecord);
+            saveToLocalStorage();
+
+            showToast("Xaadiriskii fasalka waa la kaydiyey!");
+        }
+    </script>
+</body>
+</html>
